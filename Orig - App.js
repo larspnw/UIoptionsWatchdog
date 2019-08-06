@@ -39,12 +39,16 @@ class App extends Component {
   
   render () {
     return (
-      // JSX to render goes here...
-      this.state.options.map((option) => (
-        <View style={styles.container}>
-          <Text>Options Watchdog: options.title</Text>
-        </View>
-      ))
+      <FlatList
+          data={this.state.dataSource}
+          renderItem={({option}) => <Text>{option.name}, {option.price}</Text>}
+          keyExtractor={({id}, index) => id}
+        />
+      //this.state.options.map((option) => (
+      //  <View style={styles.container}>
+      //    <Text>Options Watchdog: options.title</Text>
+      //  </View>
+      //)
     );
   }
 }

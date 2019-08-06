@@ -1,11 +1,11 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet  } from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, List, ListItem  } from 'react-native';
 
 //TODO refresh button
 //TODO status box
 //TODO read json
 
-export default class OptionsWatchdog extends React.Component {
+export default class FetchExample extends React.Component {
 
   constructor(props){
     super(props);
@@ -35,6 +35,22 @@ export default class OptionsWatchdog extends React.Component {
       });
   }
 
+  render() {
+    return (
+      <List>
+        <FlatList
+          data={this.state.dataSource}
+          renderItem={({ item }) => (
+            <ListItem 
+              title={`${item.name} ${item.type}`}
+              subtitle={item.DTE} 
+            />
+          )}
+        />
+      </List>
+    );
+  }
+/*
   render(){
 
     if(this.state.isLoading){
@@ -44,16 +60,30 @@ export default class OptionsWatchdog extends React.Component {
         </View>
       )
     }
-      
+  
+       
     return(
       <View style={{flex: 1, paddingTop:20}}>
         <FlatList
           data={this.state.dataSource}
           renderItem={({item}) => <Text>{item.name} {item.DTE} {item.IOTM} {item.pctIOTM} {item.price} {item.optionsPrice} {item.type} {item.premium}</Text>}
-          keyExtractor={({currentPrice}, index) => currentPrice}
+          keyExtractor={({name}, index) => name}
         />
       </View>
 
+      //<View style={{flex: 1, paddingTop:20}}>
+        // <Text>{JSON.stringify(this.state.dataSource, null, 2) }</Text>
+              
+      //</View>
+      //<Text>{JSON.stringify(this.state.dataSource, null, 2) }</Text>
+          
+      //<View style={{flex: 1, paddingTop:20}}>
+      //    <Text>{this.state.dataSource}</Text>
+      //</View> 
     );
-  }
-} 
+  }*/
+   
+
+  
+}
+   
