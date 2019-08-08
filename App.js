@@ -1,27 +1,38 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet } from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button } from 'react-native';
+import  Constants  from 'expo-constants';
 
-//TODO refresh button
-//TODO status box
-//TODO check for timeout error on fetch
+const apiUrl = Constants.manifest.extra.apiUrl;
+const apiKey = Constants.manifest.extra.apiKey;
 
 export default class OptionsWatchdog extends React.Component {
-
+   
   constructor(props) {
     super(props);
-    this.state = { 
+    this.state = {
       isLoading: true,
-      error: null, 
+      error: null,
     }
   }
 
-
   componentDidMount() {
 
-    return fetch('https://lrzmovv1td.execute-api.us-east-1.amazonaws.com/default/optionsWatchdog?requestJson=true', {
+    var date = new Date().getDate(); //Current Date
+    var month = new Date().getMonth() + 1; //Current Month
+    var year = new Date().getFullYear(); //Current Year
+    var hours = new Date().getHours(); //Current Hours
+    var min = new Date().getMinutes(); //Current Minutes
+    var sec = new Date().getSeconds(); //Current Seconds
+    //var dateNow = Date(Date.now()).toString();
+    this.setState({
+      date: 
+          date + '/' + month + '/' + year + ' ' + hours + ':' + min,
+    });
+
+    return fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'X-api-key': "uFBeU8GkjE7pD2kd0bcn176ZY16p8foFl1Gb9Qbe"
+        'X-api-key': apiKey  
       }
     })
       .then(response => {
@@ -36,9 +47,9 @@ export default class OptionsWatchdog extends React.Component {
         isLoading: false
       }, function () {
       }))
-      .catch(error => this.setState({ 
-        error, 
-        isLoading: false 
+      .catch(error => this.setState({
+        error,
+        isLoading: false
       }));
 
     /*
@@ -58,12 +69,25 @@ export default class OptionsWatchdog extends React.Component {
 */
   }
 
+  _refreshPage() {
+    //console.log("Clicked");
+    //this.location.reload()
+    this.setState({
+      dataSource: null
+    });
+  }
+
   render() {
-    
+
     if (this.state.error) {
       return (
         <View style={{ flex: 1, padding: 30 }}>
-          <Text>Error loading data: {this.state.error.message}</Text>
+          <Text>
+            Error loading data: {this.state.error.message}
+          </Text>
+          <Button onPress={this._refreshPage} title="Retry" />
+
+
         </View>
       )
     }
@@ -95,6 +119,7 @@ export default class OptionsWatchdog extends React.Component {
         <Text style={styles.h2text}>
           Options Watchdog
       </Text>
+        <Text style={styles.second}>Last updated: {this.state.date}</Text>
         <FlatList
           data={this.state.dataSource}
           /*data={
@@ -120,8 +145,8 @@ export default class OptionsWatchdog extends React.Component {
               {(item.alert == 'y') ? (
                 <Text style={styles.firstAlert}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
               ) : (
-                <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
-              )}
+                  <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+                )}
               <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium}</Text>
             </View>
           }
@@ -130,7 +155,11 @@ export default class OptionsWatchdog extends React.Component {
           keyExtractor={({ price }, index) => price}
 
         />
+
+        <Button onPress={this._refreshPage} title="Refresh" />
+
       </View>
+
     );
 
   }
@@ -167,6 +196,9 @@ const styles = StyleSheet.create({
   },
   second: {
     color: 'blue'
+  },
+  button: {
+    justifyContent: 'center'
   }
 
 });

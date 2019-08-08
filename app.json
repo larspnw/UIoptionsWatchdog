@@ -29,6 +29,10 @@
     "android": {
       "package": "com.larsware.optionsWatchdog"
     },
+    "extra": {
+      "apiUrl": "https://lrzmovv1td.execute-api.us-east-1.amazonaws.com/default/optionsWatchdog?requestJson=true",
+      "apiKey": "uFBeU8GkjE7pD2kd0bcn176ZY16p8foFl1Gb9Qbe"
+    },
     "description": ""
   }
 }
