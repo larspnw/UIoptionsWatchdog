@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet  } from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, StyleSheet } from 'react-native';
 
 //TODO refresh button
 //TODO status box
@@ -7,14 +7,16 @@ import { FlatList, ActivityIndicator, Text, View, StyleSheet  } from 'react-nati
 
 export default class OptionsWatchdog extends React.Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state ={ isLoading: true}
-    
+    this.state = { 
+      isLoading: true,
+      error: null, 
+    }
   }
 
-  
-  componentDidMount(){
+
+  componentDidMount() {
 
     return fetch('https://lrzmovv1td.execute-api.us-east-1.amazonaws.com/default/optionsWatchdog?requestJson=true', {
       method: 'GET',
@@ -22,29 +24,54 @@ export default class OptionsWatchdog extends React.Component {
         'X-api-key': "uFBeU8GkjE7pD2kd0bcn176ZY16p8foFl1Gb9Qbe"
       }
     })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('response: ' + response.status + ' / ' + response.statusText);
+        }
+      })
+      .then(responseJson => this.setState({
+        dataSource: responseJson,
+        isLoading: false
+      }, function () {
+      }))
+      .catch(error => this.setState({ 
+        error, 
+        isLoading: false 
+      }));
+
+    /*
       .then((response) => response.json())
       .then((responseJson) => {
-
         this.setState({
           isLoading: false,
           dataSource: responseJson,
-        }, function(){
+        }, function () {
 
         });
 
       })
-      .catch((error) =>{
+      .catch((error) => {
         console.error(error);
       });
-      
-  } 
+*/
+  }
 
-  render(){
-
-    if(this.state.isLoading){
-      return(
-        <View style={{flex: 1, padding: 30}}>
-          <ActivityIndicator/>
+  render() {
+    
+    if (this.state.error) {
+      return (
+        <View style={{ flex: 1, padding: 30 }}>
+          <Text>Error loading data: {this.state.error.message}</Text>
+        </View>
+      )
+    }
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, padding: 30 }}>
+          <Text>Loading...</Text>
+          <ActivityIndicator />
         </View>
       )
     }
@@ -61,50 +88,54 @@ export default class OptionsWatchdog extends React.Component {
 
     );
     */
-  
-   return (
 
-    <View style={styles.container} >
-      <Text style={styles.h2text}>
-        Options Watchdog
+    return (
+
+      <View style={styles.container} >
+        <Text style={styles.h2text}>
+          Options Watchdog
       </Text>
         <FlatList
-        data={this.state.dataSource}
-         /*data={
-                [
-                    {
-                        "name": "Proxima Midnight",
-                        "email": "proxima@appdividend.com"
-                    },
-                    {
-                        "name": "Ebony Maw",
-                        "email": "ebony@appdividend.com"
-                    },
-                    {
-                        "name": "Black Dwarf",
-                        "email": "dwarf@appdividend.com"
-                    }
-                  ]
-              }
-          */    
-        showsVerticalScrollIndicator={false} 
-        renderItem={({item}) =>
-        <View style={styles.flatview}>
-          <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
-          <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium}</Text>
-        </View>
-        }
-        //keyExtractor={item => item.email}
-        //renderItem={({item}) => <Text>{item.name} {item.DTE} {item.IOTM} {item.pctIOTM} {item.price} {item.optionsPrice} {item.type} {item.premium}</Text>}
-        keyExtractor={({price}, index) => price}
-       
-      />
-    </View>
+          data={this.state.dataSource}
+          /*data={
+                 [
+                     {
+                         "name": "Proxima Midnight",
+                         "email": "proxima@appdividend.com"
+                     },
+                     {
+                         "name": "Ebony Maw",
+                         "email": "ebony@appdividend.com"
+                     },
+                     {
+                         "name": "Black Dwarf",
+                         "email": "dwarf@appdividend.com"
+                     }
+                   ]
+               }
+           */
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) =>
+            <View style={styles.flatview}>
+              {(item.alert == 'y') ? (
+                <Text style={styles.firstAlert}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+              ) : (
+                <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+              )}
+              <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium}</Text>
+            </View>
+          }
+          //keyExtractor={item => item.email}
+          //renderItem={({item}) => <Text>{item.name} {item.DTE} {item.IOTM} {item.pctIOTM} {item.price} {item.optionsPrice} {item.type} {item.premium}</Text>}
+          keyExtractor={({ price }, index) => price}
+
+        />
+      </View>
     );
-    
+
   }
-  
-} 
+
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -129,8 +160,13 @@ const styles = StyleSheet.create({
     fontFamily: 'normal',
     fontSize: 18
   },
+  firstAlert: {
+    fontFamily: 'normal',
+    fontSize: 18,
+    color: 'red'
+  },
   second: {
     color: 'blue'
   }
-  
+
 });
