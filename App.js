@@ -114,7 +114,7 @@ export default class OptionsWatchdog extends React.Component {
     */
 
     return (
-
+  
       <View style={styles.container} >
         <Text style={styles.h2text}>
           Options Watchdog
@@ -147,7 +147,7 @@ export default class OptionsWatchdog extends React.Component {
               ) : (
                   <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
                 )}
-              <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium}</Text>
+              <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}</Text>
             </View>
           }
           //keyExtractor={item => item.email}
