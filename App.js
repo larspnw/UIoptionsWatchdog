@@ -14,7 +14,7 @@ export default class OptionsWatchdog extends React.Component {
       error: null,
     }
   }
-
+   
   componentDidMount() {
 
     var date = new Date().getDate(); //Current Date
@@ -26,7 +26,7 @@ export default class OptionsWatchdog extends React.Component {
     //var dateNow = Date(Date.now()).toString();
     this.setState({
       date: 
-          date + '/' + month + '/' + year + ' ' + hours + ':' + min,
+          month + '/' + date + '/' + year + ' ' + hours + ':' + min,
     });
 
     return fetch(apiUrl, {
