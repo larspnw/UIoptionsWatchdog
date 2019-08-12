@@ -27,6 +27,7 @@ export default class OptionsWatchdog extends React.Component {
     this.setState({
       date: 
           month + '/' + date + '/' + year + ' ' + hours + ':' + min,
+      fetchStart: Date.now(),
     });
 
     return fetch(apiUrl, {
@@ -39,7 +40,7 @@ export default class OptionsWatchdog extends React.Component {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('response: ' + response.status + ' / ' + response.statusText);
+          throw new Error('response: ' + response.status);
         }
       })
       .then(responseJson => this.setState({
@@ -50,23 +51,8 @@ export default class OptionsWatchdog extends React.Component {
       .catch(error => this.setState({
         error,
         isLoading: false
-      }));
-
-    /*
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          dataSource: responseJson,
-        }, function () {
-
-        });
-
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-*/
+      }));  
+      
   }
 
   _refreshPage() {
@@ -84,6 +70,7 @@ export default class OptionsWatchdog extends React.Component {
         <View style={{ flex: 1, padding: 30 }}>
           <Text>
             Error loading data: {this.state.error.message}
+            Time: {Date.now() - this.state.fetchStart} ms
           </Text>
           <Button onPress={this._refreshPage} title="Retry" />
 
@@ -95,23 +82,10 @@ export default class OptionsWatchdog extends React.Component {
       return (
         <View style={{ flex: 1, padding: 30 }}>
           <Text>Loading...</Text>
-          <ActivityIndicator />
+          <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )
     }
-
-    /* ORIGINAL
-    return(
-      <View style={{flex: 1, paddingTop:20}}>
-        <FlatList
-          data={this.state.dataSource}
-          renderItem={({item}) => <Text>{item.name} {item.DTE} {item.IOTM} {item.pctIOTM} {item.price} {item.optionsPrice} {item.type} {item.premium}</Text>}
-          keyExtractor={({currentPrice}, index) => currentPrice}
-        />
-      </View>
-
-    );
-    */
 
     return (
   
@@ -119,7 +93,7 @@ export default class OptionsWatchdog extends React.Component {
         <Text style={styles.h2text}>
           Options Watchdog
       </Text>
-        <Text style={styles.second}>Last updated: {this.state.date}</Text>
+        <Text style={styles.second}>Last updated: {this.state.date} Time: {Date.now() - this.state.fetchStart} ms</Text>
         <FlatList
           data={this.state.dataSource}
           /*data={
@@ -150,8 +124,6 @@ export default class OptionsWatchdog extends React.Component {
               <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}</Text>
             </View>
           }
-          //keyExtractor={item => item.email}
-          //renderItem={({item}) => <Text>{item.name} {item.DTE} {item.IOTM} {item.pctIOTM} {item.price} {item.optionsPrice} {item.type} {item.premium}</Text>}
           keyExtractor={({ price }, index) => price}
 
         />
@@ -173,6 +145,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     backgroundColor: '#F5FCFF',
+  },
+  horizontal: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10
   },
   h2text: {
     marginTop: 10,
