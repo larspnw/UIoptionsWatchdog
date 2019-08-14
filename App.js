@@ -116,11 +116,13 @@ export default class OptionsWatchdog extends React.Component {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) =>
             <View style={styles.flatview}>
-              {(item.alert == 'y') ? (
-                <Text style={styles.firstAlert}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+              {(item.alert == 0) ? (
+                <Text style={styles.firstAlertP0}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+              ) : (item.alert == 1) ? (
+                <Text style={styles.firstAlertP1}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
               ) : (
-                  <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
-                )}
+                <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+              )}
               <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}</Text>
             </View>
           }
@@ -166,10 +168,15 @@ const styles = StyleSheet.create({
     fontFamily: 'normal',
     fontSize: 18
   },
-  firstAlert: {
+  firstAlertP0: {
     fontFamily: 'normal',
     fontSize: 18,
     color: 'red'
+  },
+  firstAlertP1: {
+    fontFamily: 'normal',
+    fontSize: 18,
+    color: 'orange'
   },
   second: {
     color: 'blue'
