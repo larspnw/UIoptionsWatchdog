@@ -1,7 +1,7 @@
 import React from 'react';
 import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button } from 'react-native';
 import  Constants  from 'expo-constants';
-
+ 
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
 
