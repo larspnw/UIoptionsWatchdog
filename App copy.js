@@ -1,18 +1,12 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image} from 'react-native';
-import Constants from 'expo-constants';
-import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialTopTabNavigator } from "react-navigation";
-
+import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button } from 'react-native';
+import  Constants  from 'expo-constants';
+ 
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
 
-//export default class OptionsWatchdog extends React.Component {
-class OptionsScreen extends React.Component {
-
-  static navigationOptions = {
-    title: 'Watchdog',
-  };
-
+export default class OptionsWatchdog extends React.Component {
+   
   constructor(props) {
     super(props);
     this.state = {
@@ -20,7 +14,7 @@ class OptionsScreen extends React.Component {
       error: null,
     }
   }
-
+   
   componentDidMount() {
 
     var date = new Date().getDate(); //Current Date
@@ -31,15 +25,15 @@ class OptionsScreen extends React.Component {
     var sec = new Date().getSeconds(); //Current Seconds
     //var dateNow = Date(Date.now()).toString();
     this.setState({
-      date:
-        month + '/' + date + '/' + year + ' ' + hours + ':' + min,
+      date: 
+          month + '/' + date + '/' + year + ' ' + hours + ':' + min,
       fetchStart: Date.now(),
     });
 
     return fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'X-api-key': apiKey
+        'X-api-key': apiKey  
       }
     })
       .then(response => {
@@ -57,8 +51,8 @@ class OptionsScreen extends React.Component {
       .catch(error => this.setState({
         error,
         isLoading: false
-      }));
-
+      }));  
+      
   }
 
   _refreshPage() {
@@ -94,8 +88,11 @@ class OptionsScreen extends React.Component {
     }
 
     return (
-
+  
       <View style={styles.container} >
+        <Text style={styles.h2text}>
+          Options Watchdog
+      </Text>
         <Text style={styles.second}>Last updated: {this.state.date} Time: {Date.now() - this.state.fetchStart} ms</Text>
         <FlatList
           data={this.state.dataSource}
@@ -124,23 +121,29 @@ class OptionsScreen extends React.Component {
               ) : (item.alert == 1) ? (
                 <Text style={styles.firstAlertP1}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
               ) : (
-                    <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
-                  )}
+                <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+              )}
               <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}</Text>
             </View>
           }
           keyExtractor={({ price }, index) => price}
+
         />
+
         <Button onPress={this._refreshPage} title="Refresh" />
+
       </View>
+
     );
+
   }
+
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10,
+    marginTop: 50,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     backgroundColor: '#F5FCFF',
@@ -181,82 +184,22 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center'
   }
+
 });
 
-class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Home',
-  };
-
+class SettingsScreen extends React.Component {
   render() {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Image
-          style={{width: 478, height: 381}}
-          source={require('./assets/stock-options.jpg')}
-        />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Settings!</Text>
       </View>
     );
   }
 }
 
-class ManageOptionsScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Manage',
-  };
-
-  render() {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text>One day you'll manage options here</Text>
-      </View>
-    );
-  }
-}
-const TabNavigator = createMaterialTopTabNavigator(
-  {
-    Home: HomeScreen,
-    Watchdog: OptionsScreen,
-    Manage: ManageOptionsScreen
-  },
-  {
-    initialRouteName: 'Home',
-    tabBarOptions: {
-      labelStyle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-      },
-      tabStyle: {
-        width: 170,
-      },
-      style: {
-        backgroundColor: 'orange',
-        paddingVertical: 10,
-      },
-    }
-  }
-);
-/*
-const AppNavigator = createStackNavigator(
-  {
-    Home: HomeScreen,
-    Watchdog: OptionsScreen,
-    Manage: ManageOptionsScreen
-  },
-  {
-    initialRouteName: "Home",
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: '#f4511e',
-      },
-      headerTintColor: '#fff',
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
-    }
-  }
-);
-*/
-
-//export default createAppContainer(AppNavigator);
+const TabNavigator = createBottomTabNavigator({
+  //Home: HomeScreen,
+  Settings: SettingsScreen,
+});
+ 
 export default createAppContainer(TabNavigator);
