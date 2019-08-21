@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image } from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
 import Constants from 'expo-constants';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialTopTabNavigator } from "react-navigation";
 
@@ -97,6 +97,7 @@ class OptionsScreen extends React.Component {
       <View style={styles.container} >
         <Text style={styles.second}>Last updated: {this.state.date} Time: {Date.now() - this.state.fetchStart} ms</Text>
         <FlatList
+          contentContainerStyle={{ paddingBottom: 40}}
           data={this.state.dataSource}
           /*data={
                  [
@@ -130,7 +131,11 @@ class OptionsScreen extends React.Component {
           }
           keyExtractor={({ price }, index) => price}
         />
-        <Button onPress={this._refreshPage} title="Refresh" />
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
+            <Text style={{ color: 'white' }}>Refresh</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -144,6 +149,12 @@ class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = { isLoading: true }
+  }
+
+  _refreshPage() {
+    this.setState({
+      dataSource: null
+    });
   }
 
   componentDidMount() {
@@ -191,10 +202,11 @@ class HomeScreen extends React.Component {
           />
         </View>
         <FlatList
+          contentContainerStyle={{ paddingBottom: 50}} 
           data={this.state.dataSource}
           renderItem={({ item }) =>
-            <Text style={styles.indexes}> 
-              <Text style={{fontWeight: 'bold'}}>{item.name}:</Text> {item.price}
+            <Text style={styles.indexes}>
+              <Text style={{ fontWeight: 'bold' }}>{item.name}:</Text> {item.price}
               {(item.change.startsWith("+")) ? (
                 <Text style={{ color: 'green' }}> {item.change}</Text>
               ) : (
@@ -204,6 +216,11 @@ class HomeScreen extends React.Component {
             </Text>}
           keyExtractor={({ name }, index) => name}
         />
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
+            <Text style={{ color: 'white' }}>Refresh</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -268,6 +285,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 30,
     borderRadius: 2,
+    paddingBottom: 20,
   },
   first: {
     fontFamily: 'normal',
@@ -298,6 +316,22 @@ const styles = StyleSheet.create({
   },
   button: {
     justifyContent: 'center'
+  },
+  footer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: -10
+  },
+  button2: {
+    width: 300,
+    height: 45,
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 20
   }
 });
 
