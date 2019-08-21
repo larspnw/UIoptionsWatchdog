@@ -1,12 +1,11 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image} from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image } from 'react-native';
 import Constants from 'expo-constants';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialTopTabNavigator } from "react-navigation";
 
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
 
-//export default class OptionsWatchdog extends React.Component {
 class OptionsScreen extends React.Component {
 
   static navigationOptions = {
@@ -137,63 +136,73 @@ class OptionsScreen extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 10,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    backgroundColor: '#F5FCFF',
-  },
-  horizontal: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 10
-  },
-  h2text: {
-    marginTop: 10,
-    fontFamily: 'normal',
-    fontSize: 36,
-    fontWeight: 'bold',
-  },
-  flatview: {
-    justifyContent: 'center',
-    paddingTop: 30,
-    borderRadius: 2,
-  },
-  first: {
-    fontFamily: 'normal',
-    fontSize: 18
-  },
-  firstAlertP0: {
-    fontFamily: 'normal',
-    fontSize: 18,
-    color: 'red'
-  },
-  firstAlertP1: {
-    fontFamily: 'normal',
-    fontSize: 18,
-    color: 'orange'
-  },
-  second: {
-    color: 'blue'
-  },
-  button: {
-    justifyContent: 'center'
-  }
-});
-
 class HomeScreen extends React.Component {
   static navigationOptions = {
     title: 'Home',
   };
 
+  constructor(props) {
+    super(props);
+    this.state = { isLoading: true }
+  }
+
+  componentDidMount() {
+    return fetch(apiUrl + "&getIndexes", {
+      method: 'GET',
+      headers: {
+        'X-api-key': apiKey
+      }
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('response: ' + response.status);
+        }
+      })
+      .then(responseJson => this.setState({
+        dataSource: responseJson,
+        isLoading: false
+      }, function () {
+      }))
+      .catch(error => this.setState({
+        error,
+        isLoading: false
+      }));
+  }
+
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, padding: 30 }}>
+          <Text>Loading...</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )
+    }
+
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Image
-          style={{width: 478, height: 381}}
-          source={require('./assets/stock-options.jpg')}
+      <View style={styles.flatview} >
+        <View style={styles.homeimage}>
+          <Image
+            //style={{ width: 478, height: 381 }}
+            style={{ width: 300, height: 200 }}
+            source={require('./assets/stock-options.jpg')}
+          />
+        </View>
+        <FlatList
+          data={this.state.dataSource}
+          renderItem={({ item }) =>
+            <Text style={styles.indexes}> 
+              <Text style={{fontWeight: 'bold'}}>{item.name}:</Text> {item.price}
+              {(item.change.startsWith("+")) ? (
+                <Text style={{ color: 'green' }}> {item.change}</Text>
+              ) : (
+                  <Text style={{ color: 'red' }}> {item.change}</Text>
+                )
+              }
+            </Text>}
+          keyExtractor={({ name }, index) => name}
         />
       </View>
     );
@@ -236,27 +245,60 @@ const TabNavigator = createMaterialTopTabNavigator(
     }
   }
 );
-/*
-const AppNavigator = createStackNavigator(
-  {
-    Home: HomeScreen,
-    Watchdog: OptionsScreen,
-    Manage: ManageOptionsScreen
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 10,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    backgroundColor: '#F5FCFF',
   },
-  {
-    initialRouteName: "Home",
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: '#f4511e',
-      },
-      headerTintColor: '#fff',
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
-    }
+  horizontal: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10
+  },
+  h2text: {
+    marginTop: 10,
+    fontFamily: 'normal',
+    fontSize: 36,
+    fontWeight: 'bold',
+  },
+  flatview: {
+    justifyContent: 'center',
+    paddingTop: 30,
+    borderRadius: 2,
+  },
+  first: {
+    fontFamily: 'normal',
+    fontSize: 18
+  },
+  indexes: {
+    fontFamily: 'normal',
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 20,
+  },
+  homeimage: {
+    alignItems: 'center',
+    marginTop: 50
+  },
+  firstAlertP0: {
+    fontFamily: 'normal',
+    fontSize: 18,
+    color: 'red'
+  },
+  firstAlertP1: {
+    fontFamily: 'normal',
+    fontSize: 18,
+    color: 'orange'
+  },
+  second: {
+    color: 'blue'
+  },
+  button: {
+    justifyContent: 'center'
   }
-);
-*/
+});
 
-//export default createAppContainer(AppNavigator);
 export default createAppContainer(TabNavigator);
