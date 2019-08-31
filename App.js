@@ -6,6 +6,7 @@ import { createStackNavigator, createBottomTabNavigator, createAppContainer, cre
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
 const apiUrlSummary = Constants.manifest.extra.apiUrlSummary;
+const apiUrlExpired = Constants.manifest.extra.apiUrlExpired;
 
 class OptionsScreen extends React.Component {
 
@@ -79,8 +80,6 @@ class OptionsScreen extends React.Component {
             Time: {Date.now() - this.state.fetchStart} ms
           </Text>
           <Button onPress={this._refreshPage} title="Retry" />
-
-
         </View>
       )
     }
@@ -98,7 +97,7 @@ class OptionsScreen extends React.Component {
       <View style={styles.container} >
         <Text style={styles.second}>Last updated: {this.state.date} Time: {Date.now() - this.state.fetchStart} ms</Text>
         <FlatList
-          contentContainerStyle={{ paddingBottom: 40}}
+          contentContainerStyle={{ paddingBottom: 40 }}
           data={this.state.dataSource}
           /*data={
                  [
@@ -130,7 +129,7 @@ class OptionsScreen extends React.Component {
               <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}</Text>
             </View>
           }
-          keyExtractor={({ price }, index) => price}
+          keyExtractor={({ nameTypePrice }, index) => nameTypePrice}
         />
         <View style={styles.footer}>
           <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
@@ -149,7 +148,10 @@ class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { isLoading: true }
+    this.state = {
+      isLoading: true,
+      isLoadingSummary: true
+    }
   }
 
   _refreshPage() {
@@ -190,10 +192,7 @@ class HomeScreen extends React.Component {
 
   getOptionsSummary() {
     return fetch(apiUrlSummary, {
-      method: 'GET',
-      //headers: {
-        //'X-api-key': apiKey
-      //}
+      method: 'GET'
     })
       .then(response => {
         if (response.ok) {
@@ -204,17 +203,17 @@ class HomeScreen extends React.Component {
       })
       .then(responseJson => this.setState({
         dataSourceSummary: responseJson,
-        isLoading: false
+        isLoadingSummary: false
       }, function () {
       }))
       .catch(error => this.setState({
         error,
-        isLoading: false
+        isLoadingSummary: false
       }));
   }
 
   render() {
-    if (this.state.isLoading) {
+    if (this.state.isLoading || this.state.isLoadingSummary) {
       return (
         <View style={{ flex: 1, padding: 30 }}>
           <Text>Loading...</Text>
@@ -225,15 +224,25 @@ class HomeScreen extends React.Component {
 
     return (
       <View style={styles.flatview} >
+        {
+          this.state.error ?
+            <Text>
+              {this.state.error.message}
+            </Text> :
+            <View></View>
+        }
         <View style={styles.homeimage}>
           <Image
-            //style={{ width: 478, height: 381 }}
             style={{ width: 300, height: 200 }}
             source={require('./assets/stock-options.jpg')}
           />
         </View>
+        <Text style={styles.indexes}>
+          <Text style={{ fontWeight: 'bold' }}>Contracts: </Text>
+          {this.state.dataSourceSummary.summary}
+        </Text>
         <FlatList
-          contentContainerStyle={{ paddingBottom: 50}} 
+          contentContainerStyle={{ paddingBottom: 50 }}
           data={this.state.dataSource}
           renderItem={({ item }) =>
             <Text style={styles.indexes}>
@@ -250,9 +259,6 @@ class HomeScreen extends React.Component {
         />
         
         <View style={styles.footer}>
-          <Text style={styles.indexes}>
-              <Text style={{ fontWeight: 'bold' }}>{this.state.dataSourceSummary}</Text>
-          </Text>
           <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
             <Text style={{ color: 'white' }}>Refresh</Text>
           </TouchableOpacity>
@@ -267,10 +273,78 @@ class ManageOptionsScreen extends React.Component {
     title: 'Manage',
   };
 
+  //TODO - add button to initiate, add checkbox, add delete button
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoadingExpired: true,
+      errorExpired: null,
+    }
+  }
+  componentDidMount() {
+
+    return fetch(apiUrlExpired, {
+      method: 'GET'
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('response: ' + response.status);
+        }
+      })
+      .then(responseJson => this.setState({
+        dataSourceExpired: responseJson,
+        isLoadingExpired: false
+      }, function () {
+      }))
+      .catch(error => this.setState({
+        errorExpired,
+        isLoadingExpired: false
+      }));
+  }
+
   render() {
+    if (this.state.errorExpired) {
+      return (
+        <View style={{ flex: 1, padding: 30 }}>
+          <Text>
+            Error loading data: {this.state.errorExpired.message}
+          </Text>
+          <Button onPress={this._refreshPage} title="Retry" />
+        </View>
+      )
+    }
+    if (this.state.isLoadingExpired) {
+      return (
+        <View style={{ flex: 1, padding: 30 }}>
+          <Text>Loading...</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )
+    }
+    //TODO only execute on demand/ button clicked!!
+
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text>One day you'll manage options here</Text>
+      <View style={styles.container} >
+        <FlatList
+          contentContainerStyle={{ paddingBottom: 40 }}
+          data={this.state.dataSourceExpired}
+          
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) =>
+            <View style={styles.flatview}>
+              <Text style={styles.first}>{item.name} {item.type} Opts: {item.optionsPrice} Exp: {item.expirationDate}</Text>
+            </View>
+          }
+          keyExtractor={({ nameTypePrice }, index) => nameTypePrice}
+        />
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
+            <Text style={{ color: 'white' }}>Refresh</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
