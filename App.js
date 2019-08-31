@@ -5,6 +5,7 @@ import { createStackNavigator, createBottomTabNavigator, createAppContainer, cre
 
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
+const apiUrlSummary = Constants.manifest.extra.apiUrlSummary;
 
 class OptionsScreen extends React.Component {
 
@@ -158,6 +159,11 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.getIndexes();
+    this.getOptionsSummary();
+  }
+
+  getIndexes() {
     return fetch(apiUrl + "&getIndexes", {
       method: 'GET',
       headers: {
@@ -173,6 +179,31 @@ class HomeScreen extends React.Component {
       })
       .then(responseJson => this.setState({
         dataSource: responseJson,
+        isLoading: false
+      }, function () {
+      }))
+      .catch(error => this.setState({
+        error,
+        isLoading: false
+      }));
+  }
+
+  getOptionsSummary() {
+    return fetch(apiUrlSummary, {
+      method: 'GET',
+      //headers: {
+        //'X-api-key': apiKey
+      //}
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('response: ' + response.status);
+        }
+      })
+      .then(responseJson => this.setState({
+        dataSourceSummary: responseJson,
         isLoading: false
       }, function () {
       }))
@@ -213,10 +244,15 @@ class HomeScreen extends React.Component {
                   <Text style={{ color: 'red' }}> {item.change}</Text>
                 )
               }
-            </Text>}
+            </Text>
+          }
           keyExtractor={({ name }, index) => name}
         />
+        
         <View style={styles.footer}>
+          <Text style={styles.indexes}>
+              <Text style={{ fontWeight: 'bold' }}>{this.state.dataSourceSummary}</Text>
+          </Text>
           <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
             <Text style={{ color: 'white' }}>Refresh</Text>
           </TouchableOpacity>
