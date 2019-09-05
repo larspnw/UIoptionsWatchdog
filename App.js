@@ -2,6 +2,7 @@ import React from 'react';
 import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
 import Constants from 'expo-constants';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialTopTabNavigator } from "react-navigation";
+//import console from console;
 
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
@@ -277,13 +278,16 @@ class ManageOptionsScreen extends React.Component {
   
   constructor(props) {
     super(props);
+    this.handleSubmit = this.handleSubmit.bind(this)
     this.state = {
       isLoadingExpired: true,
       errorExpired: null,
+      dataSourceExpired: null,
     }
   }
   componentDidMount() {
 
+    /*
     return fetch(apiUrlExpired, {
       method: 'GET'
     })
@@ -303,6 +307,37 @@ class ManageOptionsScreen extends React.Component {
         errorExpired,
         isLoadingExpired: false
       }));
+      */
+  } 
+
+  handleSubmit() {
+    
+    return fetch(apiUrlExpired, {
+      method: 'GET'
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          console.log("response: " + response.status)
+          throw new Error('response: ' + response.status);
+        }
+      }) 
+      .then(responseJson => this.setState({
+        dataSourceExpired: responseJson,
+        isLoadingExpired: false
+      }, function () {
+      }))
+      .catch(errorExpired => 
+      //{
+        //console.log("response: " + response.status)
+        //console.log("Error in handleSubmit: " + errorExpired + "/" + errorExpired.message);
+        //console.log("url: " + apiUrlExpired);
+      //});
+        this.setState({
+        errorExpired,
+        isLoadingExpired: false
+      }));
   }
 
   render() {
@@ -316,18 +351,12 @@ class ManageOptionsScreen extends React.Component {
         </View>
       )
     }
-    if (this.state.isLoadingExpired) {
-      return (
-        <View style={{ flex: 1, padding: 30 }}>
-          <Text>Loading...</Text>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      )
-    }
-    //TODO only execute on demand/ button clicked!!
-
+    
     return (
       <View style={styles.container} >
+        <TouchableOpacity onPress={this.handleSubmit} style={styles.button2}>
+            <Text style={{ color: 'white' }}>Get Expired Options</Text>
+          </TouchableOpacity>
         <FlatList
           contentContainerStyle={{ paddingBottom: 40 }}
           data={this.state.dataSourceExpired}
