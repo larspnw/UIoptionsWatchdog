@@ -1,13 +1,16 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
+import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image, TouchableOpacity, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialTopTabNavigator } from "react-navigation";
-//import console from console;
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
+import { CheckBox } from 'react-native-elements'
+
 
 const apiUrl = Constants.manifest.extra.apiUrl;
 const apiKey = Constants.manifest.extra.apiKey;
 const apiUrlSummary = Constants.manifest.extra.apiUrlSummary;
 const apiUrlExpired = Constants.manifest.extra.apiUrlExpired;
+const apiUrlDelete = Constants.manifest.extra.apiUrlDelete;
 
 class OptionsScreen extends React.Component {
 
@@ -228,7 +231,7 @@ class HomeScreen extends React.Component {
         {
           this.state.error ?
             <Text>
-              {this.state.error.message}
+              Error: {this.state.error.message}
             </Text> :
             <View></View>
         }
@@ -240,7 +243,11 @@ class HomeScreen extends React.Component {
         </View>
         <Text style={styles.indexes}>
           <Text style={{ fontWeight: 'bold' }}>Contracts: </Text>
-          {this.state.dataSourceSummary.summary}
+          {
+            this.state.dataSourceSummary ?
+              this.state.dataSourceSummary.summary :
+              <Text>No summary available</Text>
+          }
         </Text>
         <FlatList
           contentContainerStyle={{ paddingBottom: 50 }}
@@ -258,7 +265,7 @@ class HomeScreen extends React.Component {
           }
           keyExtractor={({ name }, index) => name}
         />
-        
+
         <View style={styles.footer}>
           <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
             <Text style={{ color: 'white' }}>Refresh</Text>
@@ -275,43 +282,28 @@ class ManageOptionsScreen extends React.Component {
   };
 
   //TODO - add button to initiate, add checkbox, add delete button
-  
+
   constructor(props) {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
     this.state = {
       isLoadingExpired: true,
       errorExpired: null,
-      dataSourceExpired: null,
+      dataSourceExpired: null
     }
   }
-  componentDidMount() {
 
-    /*
-    return fetch(apiUrlExpired, {
-      method: 'GET'
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('response: ' + response.status);
-        }
-      })
-      .then(responseJson => this.setState({
-        dataSourceExpired: responseJson,
-        isLoadingExpired: false
-      }, function () {
-      }))
-      .catch(error => this.setState({
-        errorExpired,
-        isLoadingExpired: false
-      }));
-      */
-  } 
+  _refreshPage() {
+    this.setState({
+      dataSourceExpired: null
+    });
+  }
+
+  //componentDidMount() {}
 
   handleSubmit() {
-    
+
     return fetch(apiUrlExpired, {
       method: 'GET'
     })
@@ -322,22 +314,44 @@ class ManageOptionsScreen extends React.Component {
           console.log("response: " + response.status)
           throw new Error('response: ' + response.status);
         }
-      }) 
+      })
       .then(responseJson => this.setState({
         dataSourceExpired: responseJson,
         isLoadingExpired: false
       }, function () {
       }))
-      .catch(errorExpired => 
-      //{
-        //console.log("response: " + response.status)
-        //console.log("Error in handleSubmit: " + errorExpired + "/" + errorExpired.message);
-        //console.log("url: " + apiUrlExpired);
-      //});
+      .catch(errorExpired =>
         this.setState({
-        errorExpired,
-        isLoadingExpired: false
-      }));
+          errorExpired,
+          isLoadingExpired: false
+        }));
+  }
+
+  handleDelete(key, desc) { 
+    Alert.alert(
+      "Confirm Delete",
+      "Option: " + desc,
+      [
+        {text: 'Cancel', onPress: () => alert("Canceled"), style: 'cancel'},
+        {text: 'Delete', onPress: () => this.doDelete(key, desc)}
+      ]
+    )
+  }
+
+  doDelete(key, desc) {
+
+    fetch(apiUrlDelete + "/" + key, {
+      method: 'DELETE'
+    })
+      .then(response => {
+        if (response.ok) {
+          alert("Delete successful for " + desc)
+          //TODO refresh the list here
+          this._refreshPage
+        } else {
+          alert("Delete error: " + response.message);
+        } 
+      });
   }
 
   render() {
@@ -350,28 +364,30 @@ class ManageOptionsScreen extends React.Component {
           <Button onPress={this._refreshPage} title="Retry" />
         </View>
       )
-    }
-    
+    }   
+
     return (
       <View style={styles.container} >
-        <TouchableOpacity onPress={this.handleSubmit} style={styles.button2}>
-            <Text style={{ color: 'white' }}>Get Expired Options</Text>
-          </TouchableOpacity>
         <FlatList
           contentContainerStyle={{ paddingBottom: 40 }}
           data={this.state.dataSourceExpired}
-          
-          showsVerticalScrollIndicator={false}
+
+          showsVerticalScrollIndicator={false} 
           renderItem={({ item }) =>
-            <View style={styles.flatview}>
-              <Text style={styles.first}>{item.name} {item.type} Opts: {item.optionsPrice} Exp: {item.expirationDate}</Text>
+            <View style={styles.horizontal}>
+              <TouchableOpacity onPress={() => 
+                this.handleDelete(item.nameTypePrice, item.name + " " + item.type + " " + item.expirationDate)} 
+                style={styles.buttonDel}>
+                  <Text style={{ color: 'white' }}>Delete</Text>
+              </TouchableOpacity>
+              <Text style={styles.first}> {item.name} {item.type} Opts: {item.optionsPrice} Exp: {item.expirationDate}</Text>
             </View>
           }
           keyExtractor={({ nameTypePrice }, index) => nameTypePrice}
         />
         <View style={styles.footer}>
-          <TouchableOpacity onPress={this._refreshPage} style={styles.button2}>
-            <Text style={{ color: 'white' }}>Refresh</Text>
+          <TouchableOpacity onPress={this.handleSubmit} style={styles.button2}>
+            <Text style={{ color: 'white' }}>Get Expired Options</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -471,6 +487,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 20
+  },
+  buttonDel: {
+    width: 70,
+    height: 35,
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 0
   }
 });
 
