@@ -2,8 +2,8 @@ import React from 'react';
 import { FlatList, ActivityIndicator, Text, View, StyleSheet, Button, Image, TouchableOpacity, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { createStackNavigator, createBottomTabNavigator, createAppContainer, createMaterialTopTabNavigator } from "react-navigation";
-import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
-import { CheckBox } from 'react-native-elements'
+//import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
+//import { CheckBox } from 'react-native-elements'
 
 
 const apiUrl = Constants.manifest.extra.apiUrl;
@@ -103,23 +103,6 @@ class OptionsScreen extends React.Component {
         <FlatList
           contentContainerStyle={{ paddingBottom: 40 }}
           data={this.state.dataSource}
-          /*data={
-                 [
-                     {
-                         "name": "Proxima Midnight",
-                         "email": "proxima@appdividend.com"
-                     },
-                     {
-                         "name": "Ebony Maw",
-                         "email": "ebony@appdividend.com"
-                     },
-                     {
-                         "name": "Black Dwarf",
-                         "email": "dwarf@appdividend.com"
-                     }
-                   ]
-               }
-           */
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) =>
             <View style={styles.flatview}>
@@ -130,7 +113,8 @@ class OptionsScreen extends React.Component {
               ) : (
                     <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
                   )}
-              <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}</Text>
+              <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}
+                {(item.coveredCall == "y") ? ("CC") : ("")}</Text>
             </View>
           }
           keyExtractor={({ nameTypePrice }, index) => nameTypePrice}
@@ -280,8 +264,6 @@ class ManageOptionsScreen extends React.Component {
   static navigationOptions = {
     title: 'Manage',
   };
-
-  //TODO - add button to initiate, add checkbox, add delete button
 
   constructor(props) {
     super(props);
