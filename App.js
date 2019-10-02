@@ -107,11 +107,11 @@ class OptionsScreen extends React.Component {
           renderItem={({ item }) =>
             <View style={styles.flatview}>
               {(item.alert == 0) ? (
-                <Text style={styles.firstAlertP0}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM} BE:${item.breakEvenNet}</Text>
+                <Text style={styles.firstAlertP0}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM} buf: ${item.breakEvenNet}</Text>
               ) : (item.alert == 1) ? (
-                <Text style={styles.firstAlertP1}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM} BE:${item.breakEvenNet}</Text>
+                <Text style={styles.firstAlertP1}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM} buf: ${item.breakEvenNet}</Text>
               ) : (
-                    <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM}</Text>
+                    <Text style={styles.first}>{item.name} {item.type} DTE: {item.DTE} {item.IOTM} {item.pctIOTM} buf: ${item.breakEvenNet}</Text>
                   )}
               <Text style={styles.second}>Price: {item.price} Opts: {item.optionsPrice} Prem: {item.premium} Exp: {item.expirationDate}
                 {(item.coveredCall == 'y') ? (" CC") : ("")}</Text>
