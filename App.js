@@ -180,7 +180,10 @@ class HomeScreen extends React.Component {
 
   getOptionsSummary() {
     return fetch(apiUrlSummary, {
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'X-api-key': apiKey
+      }
     })
       .then(response => {
         if (response.ok) {
@@ -287,7 +290,10 @@ class ManageOptionsScreen extends React.Component {
   handleSubmit() {
 
     return fetch(apiUrlExpired, {
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'X-api-key': apiKey
+      }
     })
       .then(response => {
         if (response.ok) {
@@ -323,7 +329,10 @@ class ManageOptionsScreen extends React.Component {
   doDelete(key, desc) {
 
     fetch(apiUrlDelete + "/" + key, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'X-api-key': apiKey
+      }
     })
       .then(response => {
         if (response.ok) {
